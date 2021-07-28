@@ -82,6 +82,7 @@ export class TypeGenerator {
 
   private readonly typesToEmit: { [name: string]: TypeEmitter } = { };
   private readonly emittedTypes: Record<string, EmittedType> = {};
+  private readonly typeFqns: Record<string, string> = {}
   private readonly exclude: string[];
   private readonly definitions: { [def: string]: JSONSchema4 };
   private readonly toJson: boolean;
@@ -107,9 +108,13 @@ export class TypeGenerator {
    *
    * @param typeName The name of the type.
    * @param def The JSON schema definition for this type
+   * @param structFqn The FQN for the type
    */
-  public addDefinition(typeName: string, def: JSONSchema4) {
+  public addDefinition(typeName: string, def: JSONSchema4, structFqn?: string) {
     this.definitions[typeName] = def;
+    if (structFqn) {
+      this.typeFqns[typeName] = structFqn;
+    }
   }
 
   /**
@@ -133,7 +138,7 @@ export class TypeGenerator {
    * @param structFqn FQN for the type (defaults to `typeName`)
    * @returns The resolved type (not always the same as `typeName`)
    */
-  public emitType(typeName: string, def?: JSONSchema4, structFqn: string = typeName): string {
+  public emitType(typeName: string, def?: JSONSchema4, structFqn?: string): string {
     return this.emitTypeInternal(typeName, def, structFqn).type;
   }
 
@@ -148,13 +153,15 @@ export class TypeGenerator {
    * @param structFqn FQN for the type (defaults to `typeName`)
    * @returns The resolved type (not always the same as `typeName`)
    */
-  private emitTypeInternal(typeName: string, def?: JSONSchema4, structFqn: string = typeName): EmittedType {
+  private emitTypeInternal(typeName: string, def?: JSONSchema4, structFqn?: string): EmittedType {
     if (!def) {
       def = this.definitions[typeName];
       if (!def) {
         throw new Error(`unable to find schema definition for ${typeName}`);
       }
     }
+
+    structFqn = (structFqn ?? this.typeFqns[typeName]) ?? typeName;
 
     // callers expect that emit a type named `typeName` so we can't change it here
     // but at least we can verify it's correct.
@@ -483,7 +490,7 @@ export class TypeGenerator {
 
   private typeForProperty(propertyFqn: string, def: JSONSchema4): EmittedType {
     const subtype = TypeGenerator.normalizeTypeName(propertyFqn.split('.').map(x => pascalCase(x)).join(''));
-    return this.emitTypeInternal(subtype, def, subtype);
+    return this.emitTypeInternal(subtype, def, propertyFqn);
   }
 
   private typeForRef(def: JSONSchema4): EmittedType {
@@ -506,7 +513,7 @@ export class TypeGenerator {
     }
 
     const schema = this.resolveReference(def);
-    return this.emitTypeInternal(typeName, schema, def.$ref);
+    return this.emitTypeInternal(typeName, schema);
   }
 
   private typeForArray(propertyFqn: string, def: JSONSchema4): EmittedType {

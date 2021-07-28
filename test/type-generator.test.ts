@@ -320,6 +320,58 @@ describe('type aliases', () => {
   });
 });
 
+test('FQNs of types added at definition time can be generated at emit time', () => {
+  // GIVEN
+  const gen = new TypeGenerator();
+  gen.addDefinition('TypeA', {
+    type: 'object',
+    properties: {
+      field: {
+        type: 'string',
+      },
+    },
+  }, 'my.fully.qualified.names.TheAType');
+  gen.addDefinition('TypeB', {
+    type: 'object',
+    properties: {
+      field: {
+        type: 'string',
+      },
+    },
+  });
+
+  // WHEN
+  gen.emitType('TypeA');
+  gen.emitType('TypeB', undefined, 'my.fully.qualified.names.TheBType');
+
+  // THEN
+  expect(gen.render()).toMatchSnapshot();
+});
+
+test('FQNs of struct types added at definition time can be generated at emit time', () => {
+  // GIVEN
+  const gen = new TypeGenerator();
+  gen.addDefinition('TypeA', { type: 'object', properties: { field: { type: 'string' } } }, 'my.fully.qualified.names.TheAType');
+  gen.addDefinition('TypeB', { type: 'object', properties: { field: { type: 'boolean' } } }, 'my.fully.qualified.names.TheBType');
+  gen.addDefinition('TypeC', {
+    type: 'object',
+    properties: {
+      ref1: {
+        $ref: '#/definitions/TypeA',
+      },
+      ref2: {
+        $ref: '#/definitions/TypeB',
+      },
+    },
+  }, 'my.fully.qualified.names.TheCType');
+
+  // WHEN
+  gen.emitType('TypeC');
+
+  // THEN
+  expect(gen.render()).toMatchSnapshot();
+});
+
 test('forStruct', async () => {
   const schema = JSON.parse(readFileSync(path.join(__dirname, 'fixtures', 'eks.json'), 'utf-8'));
   const gen = TypeGenerator.forStruct('EksProps', schema);
@@ -351,6 +403,11 @@ function which(name: string, schema: JSONSchema4, definitions?: JSONSchema4) {
   test(name, async () => {
     const gen = new TypeGenerator(definitions);
     gen.emitType('TestType', schema, 'fqn.of.TestType');
+    expect(await generate(gen)).toMatchSnapshot();
+  });
+  test(name + ' (with no fqn)', async () => {
+    const gen = new TypeGenerator(definitions);
+    gen.emitType('TestType', schema);
     expect(await generate(gen)).toMatchSnapshot();
   });
 }

@@ -266,7 +266,7 @@ export function toJson_MyStruct(obj: MyStruct | undefined): Record<string, any> 
 /* eslint-enable max-len, quote-props */
 
 /**
- * @schema MyStructMyEnum
+ * @schema MyStruct.myEnum
  */
 export enum MyStructMyEnum {
   /** one */
@@ -278,7 +278,7 @@ export enum MyStructMyEnum {
 }
 
 /**
- * @schema MyStructYourEnum
+ * @schema MyStruct.yourEnum
  */
 export enum MyStructYourEnum {
   /** jo */
@@ -553,7 +553,7 @@ export class IntOrString {
 }
 
 /**
- * @schema MyStructHaver
+ * @schema MyStruct.haver
  */
 export class MyStructHaver {
   public static fromNumber(value: number): MyStructHaver {

@@ -78,7 +78,7 @@ export function toJson_Name(obj: Name | undefined): Record<string, any> | undefi
  * Favorite color. Default is green
  *
  * @default green
- * @schema PersonFavoriteColor
+ * @schema Person.favoriteColor
  */
 export enum PersonFavoriteColor {
   /** red */
