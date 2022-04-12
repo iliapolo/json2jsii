@@ -4,9 +4,9 @@ on:
     types:
       - labeled
       - unlabeled
-  # check_run:
-  #   types:
-  #     - completed
+  check_run:
+    types:
+      - completed
   status: {}
 jobs:
   automerge:
