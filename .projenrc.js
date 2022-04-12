@@ -17,7 +17,7 @@ const project = new typescript.TypeScriptProject({
   projenUpgradeSecret: 'PROJEN_GITHUB_TOKEN',
   defaultReleaseBranch: 'main',
   autoApproveOptions: {
-    allowedUsernames: ['cdklabs-automation'],
+    allowedUsernames: ['iliapolo'],
     secret: 'GITHUB_TOKEN',
   },
   autoApproveUpgrades: true,
