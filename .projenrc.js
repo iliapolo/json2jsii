@@ -3,6 +3,9 @@ const { typescript } = require('projen');
 const project = new typescript.TypeScriptProject({
   name: 'json2jsii',
   description: 'Generates jsii structs from JSON schemas',
+  githubOptions: {
+    mergify: false,
+  },
   authorName: 'Elad Ben-Israel',
   authorEmail: 'elad.benisrael@gmail.com',
   repository: 'https://github.com/aws/json2jsii.git',
